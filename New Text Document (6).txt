@@ -1,0 +1,99 @@
+
+
+
+
+
+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
+
+
+   $data = $request->all();
+
+   $finestutakelibarybookid = $request->fine_stu_take_libary_book_id;
+
+
+   $bookid = $request->stu_fine_libary_book_id;
+   $studentroll = $request->stu_fine_libary_book_roll;
+   $studentdepartment = $request->stu_fine_libary_book_department;
+   $studentlevel = $request->stu_fine_libary_book_level;
+   $takebookdate = $request->stu_fine_libary_book_take_date;
+   $returnbookdate = $request->stu_fine_libary_book_return_date;
+
+
+   
+
+   $studentinfo = Addstudent::where(['student_roll'=>$studentroll,'student_level_id'=>$studentlevel,'student_department_id'=>$studentdepartment])->first();
+
+   $studentid = $studentinfo->student_id;
+
+   $bookinfo = Addlibarybook::where(['libary_book_id'=>$bookid])->first();
+
+
+  $today = date("d-m-Y");
+  $datetime1 = new DateTime($returnbookdate);
+  $datetime2 = new DateTime($today);
+  $interval = $datetime1->diff($datetime2);
+  $datedifference = $interval->format('%a');
+
+
+  $mytoday  = strtotime($today);
+  $myexpiredate = strtotime($returnbookdate);
+
+//return $studentid;
+
+
+  if($myexpiredate < $mytoday){
+
+      $fine = ($datedifference*5);
+
+      $finebook = new Libarybookfinetake;
+      $finebook->fine_stu_take_libary_book_id = $finestutakelibarybookid;
+      $finebook->stu_fine_libary_book_id = $bookid;
+      $finebook->stu_fine_libary_student_id = $studentid;
+
+
+
+      $finebook->stu_fine_libary_book_roll = $studentroll;
+      $finebook->stu_fine_libary_book_department = $studentdepartment;
+      $finebook->stu_fine_libary_book_level = $studentlevel;
+      $finebook->stu_fine_libary_book_money = $fine;
+      $finebook->stu_fine_libary_book_total_day = $datedifference;
+      $finebook->stu_fine_libary_book_take_date = $takebookdate;
+      $finebook->stu_fine_libary_book_return_date = $returnbookdate;
+      $finebook->libarybook_fine_taka_date = $today;
+      $finebook->save();
+
+      Addstudenttakelibarybook::where(['studenttake_libary_book_id'=>$finestutakelibarybookid])->update(['studenttake_libary_book_status'=>0]);
+
+      return 1;
+
+
+  }else{
+
+      $fine = 0;
+      $fineday = 0;
+
+
+      $finebook = new Libarybookfinetake;
+      $finebook->fine_stu_take_libary_book_id = $finestutakelibarybookid;
+      $finebook->stu_fine_libary_book_id = $bookid;
+        $finebook->stu_fine_libary_student_id = $studentid;
+
+
+      $finebook->stu_fine_libary_book_roll = $studentroll;
+      $finebook->stu_fine_libary_book_department = $studentdepartment;
+      $finebook->stu_fine_libary_book_level = $studentlevel;
+
+
+
+      $finebook->stu_fine_libary_book_money = $fine;
+      $finebook->stu_fine_libary_book_total_day = $fineday;
+      $finebook->stu_fine_libary_book_take_date = $takebookdate;
+      $finebook->stu_fine_libary_book_return_date = $returnbookdate;
+      $finebook->libarybook_fine_taka_date = $today;
+      $finebook->save();
+
+      Addstudenttakelibarybook::where(['studenttake_libary_book_id'=>$finestutakelibarybookid])->update(['studenttake_libary_book_status'=>0]);
+
+      return 0;
+
+  }
